@@ -75,6 +75,9 @@ def run_script():
 def fill_event():
     global page
 
+    # for Playwright Inspector
+    # page.pause()
+
     if page is None:
         print("Browser not started")
         return
