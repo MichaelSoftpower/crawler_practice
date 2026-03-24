@@ -1,7 +1,6 @@
 import tkinter as tk
 import os
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright
 from urllib.parse import urljoin
 
 load_dotenv()
@@ -25,39 +24,11 @@ selected_stage = tk.StringVar(value="stage")
 # 建GUI
 tk.Label(root, text="Select Stage").pack(pady=10)
 
-p = None
-browser = None
-page = None
-
 def run_script():
-
-    global p, browser, page
-
     stage = selected_stage.get()
     base_url = get_stage_url(stage)
     if not base_url:
         return
-
-    p = sync_playwright().start()
-
-    browser = p.chromium.launch(
-        headless=False,
-        slow_mo=500
-    )
-
-    page = browser.new_page()
-    page.goto(
-        base_url,
-        wait_until="domcontentloaded"
-    )
-
-    page.fill("input[name=username]", username)    
-    page.fill("input[name=password]", password)
-    page.click("button[type=submit]")
-
-    page.wait_for_load_state("networkidle")
-
-    # print("Current URL:", page.url)
 
     training = page.get_by_text("Training")
     training.wait_for()
