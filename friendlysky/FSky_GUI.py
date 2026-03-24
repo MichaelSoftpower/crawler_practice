@@ -25,51 +25,63 @@ selected_stage = tk.StringVar(value="stage")
 # 建GUI
 tk.Label(root, text="Select Stage").pack(pady=10)
 
-
-# def set_stage(stage_name):
-#     selected_stage.set(stage_name)
+p = None
+browser = None
+page = None
 
 def run_script():
+
+    global p, browser, page
+
     stage = selected_stage.get()
-
     base_url = get_stage_url(stage)
-
     if not base_url:
         return
 
-    with sync_playwright() as p:
-        # print("Starting browser...")
-        browser = p.chromium.launch(
-            headless=False,
-            slow_mo=500
-       )
+    p = sync_playwright().start()
 
-        page = browser.new_page()
-        page.goto(
-            base_url,
-            wait_until="domcontentloaded"
-        )
+    browser = p.chromium.launch(
+        headless=False,
+        slow_mo=500
+    )
 
-        page.fill("input[name=username]", username)    
-        page.fill("input[name=password]", password)
-        page.click("button[type=submit]")
+    page = browser.new_page()
+    page.goto(
+        base_url,
+        wait_until="domcontentloaded"
+    )
 
-        page.wait_for_load_state("networkidle")
+    page.fill("input[name=username]", username)    
+    page.fill("input[name=password]", password)
+    page.click("button[type=submit]")
 
-        print("Current URL:", page.url)
+    page.wait_for_load_state("networkidle")
 
-        training = page.get_by_text("Training")
-        training.wait_for()
-        training.click()
+    # print("Current URL:", page.url)
 
-        event_url = urljoin(base_url, "bos/#/events")
+    training = page.get_by_text("Training")
+    training.wait_for()
+    training.click()
 
-        page.goto(
-            event_url,
-            wait_until="domcontentloaded"
-        )
+    event_url = urljoin(base_url, "bos/#/events")
 
-        input("Press Enter to exit")
+    page.goto(
+        event_url,
+        wait_until="domcontentloaded"
+    )
+
+    # input("Press Enter to exit")
+
+def fill_event():
+    global page
+
+    if page is None:
+        print("Browser not started")
+        return
+
+    page.locator("input[placeholder='title']").fill(
+        "First Parth 2026"
+    )
 
 stages = ["stage",
          "stage2",
@@ -92,10 +104,6 @@ tk.Button(
     width=15,
     command=run_script
 ).pack(pady=2)
-
-def fill_event(page):
-    page.get_by_label("Title").fill("First Parth 2026")
-
 
 tk.Button(
     root,

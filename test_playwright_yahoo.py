@@ -12,8 +12,7 @@ with sync_playwright() as p:
         "https://tw.yahoo.com/",
         wait_until="domcontentloaded"
        )
-
-       page.wait_for_timeout(3000)
+    page.wait_for_timeout(3000)
 
 titles = page.locator("h3").all_text_contents()
 
